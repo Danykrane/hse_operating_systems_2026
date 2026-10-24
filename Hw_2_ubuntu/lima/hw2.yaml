@@ -1,0 +1,24 @@
+# Lima: виртуальная машина с Ubuntu 24.04 для ДЗ 2.1 (cgroups).
+# containerd и nerdctl выключены: контейнеры в задании запрещены, нужен только cgroup-tools.
+# Создать и запустить (из папки Hw_2_ubuntu, она монтируется в VM по тому же пути с записью):
+#   limactl create --name=hw2 --mount-only="$PWD:w" lima/hw2.yaml
+#   limactl start hw2
+minimumLimaVersion: 2.0.0
+base:
+- template:_images/ubuntu-24.04
+vmType: vz
+cpus: 2
+memory: 4GiB
+disk: 10GiB
+containerd:
+  system: false
+  user: false
+provision:
+- mode: system
+  script: |
+    #!/bin/bash
+    set -eu
+    if ! command -v cgcreate > /dev/null || ! command -v stress > /dev/null; then
+        apt-get update
+        DEBIAN_FRONTEND=noninteractive apt-get install -y cgroup-tools stress
+    fi
